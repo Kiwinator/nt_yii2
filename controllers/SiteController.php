@@ -73,7 +73,8 @@ class SiteController extends Controller {
     	$model = new Department();
         $searchModel = new DepartmentSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $notDelete = $model->toDelete();
+        $DepartmentEmployee = new DepartmentEmployee();
+        $notDelete = $DepartmentEmployee->toDelete();
         return $this->render('department', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
@@ -145,7 +146,7 @@ class SiteController extends Controller {
         }
 
         if (isset(Yii::$app->request->post()['id'])){
-        	$model = Department::find()->where(['id' => Yii::$app->request->post()['id'], 'deleted' => false])->one();
+        	$model = Department::find()->where(['id' => Yii::$app->request->post()['id']])->one();
         } else {
             throw new HttpException(404, "Страница не найдена.");
     	}
@@ -159,7 +160,7 @@ class SiteController extends Controller {
         $model = new Department();
         if ($model->load(Yii::$app->request->post()) && Yii::$app->request->enableCsrfValidation) { // валидация
             if ($model->validate()) {
-                $model->createDepartment();
+                return $model->createDepartment();
                 return true;
             }
         }
@@ -170,7 +171,7 @@ class SiteController extends Controller {
         $model = (isset(Yii::$app->request->post('Department')['id']) ? Department::findOne(Yii::$app->request->post('Department')['id']) : new Department());
         if ($model->load(Yii::$app->request->post()) && Yii::$app->request->enableCsrfValidation) { // валидация
             if ($model->validate()) {
-                $model->updateDepartment();
+                return $model->updateDepartment();
                 return true;
             }
         }
@@ -212,7 +213,7 @@ class SiteController extends Controller {
         }
 
         if (isset(Yii::$app->request->post()['id'])){
-        	$model = Employee::find()->where(['id' => Yii::$app->request->post()['id'], 'deleted' => false])->one();
+        	$model = Employee::find()->where(['id' => Yii::$app->request->post()['id']])->one();
         	$departmentOne = DepartmentEmployee::find()->where(['employee_id' => Yii::$app->request->post()['id']])->all();
         	$model->department = ArrayHelper::map($departmentOne, 'department_id', 'department_id');
         } else {
@@ -249,7 +250,7 @@ class SiteController extends Controller {
     
     public function actionEmployeeDeleting() {
         if (Yii::$app->request->post()['info']) {
-            Employee::deleteEmployee(json::decode(Yii::$app->request->post()['info']));
+            return Employee::deleteEmployee(json::decode(Yii::$app->request->post()['info']));
         }
         return;
     }

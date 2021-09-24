@@ -12,12 +12,13 @@ class DepartmentSearch extends Department
 {
     public $id;
     public $name;
+    public $deleted;
     
     public function rules() {
         return [
         	[['id'],'integer'],
             [['name'], 'safe'],
-            [['deleted'], 'boolean'],
+            [['deleted'], 'integer'],
         ];
     }
 
@@ -26,7 +27,7 @@ class DepartmentSearch extends Department
     }
 
     public function search($params) {
-        $query = Department::find()->where(['deleted' => false]);
+        $query = Department::find();
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -48,7 +49,8 @@ class DepartmentSearch extends Department
         }
 
         $query->andFilterWhere(["like", "id", html::encode($this->id)]);
-        $query->andFilterWhere(["like", "name", html::encode($this->name)]);
+        $query->andFilterWhere(["ilike", "name", html::encode($this->name)]);
+        $query->andFilterWhere(["deleted" => html::encode($this->deleted)]);
 
         return $dataProvider;
     }

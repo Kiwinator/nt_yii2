@@ -51,8 +51,8 @@ class DepartmentEmployeeSearch extends DepartmentEmployee
         }
 
         $query->andFilterWhere(["like", "department_employee.id", html::encode($this->id)]);
-        $query->andFilterWhere(["like", "employee.name", html::encode($this->employee_name)]);
-        $query->andFilterWhere(["like", "department.name", html::encode($this->department_name)]);
+        $query->andFilterWhere(["ilike", "employee.name", html::encode($this->employee_name)]);
+        $query->andFilterWhere(["ilike", "department.name", html::encode($this->department_name)]);
         
         return $dataProvider;
     }

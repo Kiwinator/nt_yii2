@@ -13,12 +13,13 @@ class EmployeeSearch extends Employee
     public $id;
     public $name;
     public $department;
+    public $deleted;
     
     public function rules() {
         return [
             [['id'],'integer'],
             [['name', 'department'], 'string'],
-            [['deleted'], 'boolean'],
+            [['deleted'], 'integer'],
         ];
     }
 
@@ -28,12 +29,14 @@ class EmployeeSearch extends Employee
 
     public function search($params) {
         $query = Employee::find()
-        	->select(['employee.id', 'employee.name', 'group_concat(department.name) as department'])
-        	->joinWith(['departmentEmployees','departmentEmployees.departments'])
-        	->where(['employee.deleted' => false]);
+        	->select(['employee.id', 'employee.name', 'group_concat(department.name) as department', 'employee.deleted'])
+        	->joinWith(['departmentEmployees','departmentEmployees.departments']);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'pagination' => [
+		        'pageSize' => 20,
+		    ],
             'sort' => [
                 'defaultOrder'=>[
                     'id' => SORT_DESC,
@@ -52,9 +55,10 @@ class EmployeeSearch extends Employee
         }
         
         $query->andFilterWhere(["like", "employee.id", html::encode($this->id)]);
-        $query->andFilterWhere(["like", "employee.name", html::encode($this->name)]);
-        $query->andFilterWhere(["like", "department.name", html::encode($this->department)]);
-        $query->groupBy(['employee.id', 'employee.name']);
+        $query->andFilterWhere(["ilike", "employee.name", html::encode($this->name)]);
+        $query->andFilterWhere(["ilike", "department.name", html::encode($this->department)]);
+        $query->andFilterWhere(["employee.deleted" => html::encode($this->deleted)]);
+        $query->groupBy(['employee.id', 'employee.name', 'employee.deleted']);
         return $dataProvider;
     }
 }

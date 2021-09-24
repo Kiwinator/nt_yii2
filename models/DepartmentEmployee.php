@@ -51,32 +51,56 @@ class DepartmentEmployee extends \yii\db\ActiveRecord
         ];
     }
     
-    public function deleteLink($departmentId = null, $employeeId = null) {
-    	if ($employeeId) {
-    		self::deleteAll(['employee_id'=>$employeeId]);
-    	}
-    	if ($departmentId) {
-    		self::deleteAll(['department_id'=>$departmentId]);
-    	}
-    	return true;
+    public static function deleteLink($departmentId = null, $employeeId = null) {
+    	$transaction = self::getDb()->beginTransaction();
+		try {
+	    	if ($employeeId) {
+	    		self::deleteAll(['employee_id'=>$employeeId]);
+	    	}
+	    	if ($departmentId) {
+	    		self::deleteAll(['department_id'=>$departmentId]);
+	    	}
+    		$transaction->commit();
+		} catch(\Exception $e) {
+		    $transaction->rollBack();
+		    throw $e;
+		} catch(\Throwable $e) {
+		    $transaction->rollBack();
+		    throw $e;
+		}
     }
     
-    public function establishLink($employeeId, $departments) {
-    	$establishedLink = self::find()->where(['employee_id' => $employeeId])->all();
-    	$linkArray = ArrayHelper::map($establishedLink, 'department_id', 'department_id');
-    	$linkArrayAdd = array_diff($departments,$linkArray);
-    	$linkArrayRemove = array_diff($linkArray,$departments);
-    	if ($linkArrayRemove) {
-    		self::deleteAll(['AND',['employee_id'=>$employeeId],['IN', 'department_id', $linkArrayRemove]]);
-    	};
-    	foreach ($linkArrayAdd as $department) {
-    		if (!in_array($department, $linkArray)) {
-	    		$model = new self();
-	    		$model->employee_id = $employeeId;
-	    		$model->department_id = $department;
-	    		$model->save();
-    		}
-    	}
+    public static function establishLink($employeeId, $departments) {
+    	$transaction = self::getDb()->beginTransaction();
+    	try {
+	    	$establishedLink = self::find()->where(['employee_id' => $employeeId])->all();
+	    	$linkArray = ArrayHelper::map($establishedLink, 'department_id', 'department_id');
+	    	$linkArrayAdd = array_diff($departments,$linkArray);
+	    	$linkArrayRemove = array_diff($linkArray,$departments);
+	    	if ($linkArrayRemove) {
+	    		self::deleteAll(['AND',['employee_id'=>$employeeId],['IN', 'department_id', $linkArrayRemove]]);
+	    	};
+	    	foreach ($linkArrayAdd as $department) {
+	    		if (!in_array($department, $linkArray)) {
+		    		$model = new self();
+		    		$model->employee_id = $employeeId;
+		    		$model->department_id = $department;
+		    		$model->save();
+	    		}
+	    	}
+	    	$transaction->commit();
+		} catch(\Exception $e) {
+		    $transaction->rollBack();
+		    throw $e;
+		} catch(\Throwable $e) {
+		    $transaction->rollBack();
+		    throw $e;
+		}
+    }
+    
+    public static function toDelete() {
+    	$subQ = self::find()->select(['department_id'])->groupBy(['employee_id'])->having(['count(department_id)' => 1])->all();
+    	return ArrayHelper::map($subQ, 'department_id', 'department_id');
     }
 
     /**

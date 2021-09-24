@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\helpers\Html;
+use app\models\Department;
 use app\models\DepartmentEmployee;
 
 /**
@@ -52,24 +53,68 @@ class Employee extends \yii\db\ActiveRecord
     }
     
     public function createEmployee() {
-        //$employee = new self();
-        $this->name = html::encode($this->name);
-        $this->save();
-        DepartmentEmployee::establishLink($this->id, $this->department);
+        $transaction = self::getDb()->beginTransaction();
+        $Department = new Department();
+        $DepartmentList = $Department->activeDepartment();
+        $DepartmentCheck = array_intersect($this->department,$DepartmentList);
+        if (!empty($DepartmentCheck)) {
+			try {
+	        	$departmentEmployee = new DepartmentEmployee();
+			    $this->name = html::encode($this->name);
+	        	$this->save(false);
+			    $departmentEmployee->establishLink($this->id, $DepartmentCheck);
+			    $transaction->commit();
+			} catch(\Exception $e) {
+			    $transaction->rollBack();
+			    throw $e;
+			} catch(\Throwable $e) {
+			    $transaction->rollBack();
+			    throw $e;
+			}
+        }
     }
     
     public function updateEmployee() {
-        $employee = self::findOne($this->id);
-        $employee->name = html::encode($this->name);
-        $employee->save(false);
-        DepartmentEmployee::establishLink($employee->id, $this->department);
+        $transaction = self::getDb()->beginTransaction();
+        $Department = new Department();
+        $DepartmentList = $Department->activeDepartment();
+        $DepartmentCheck = array_intersect($this->department,$DepartmentList);
+        if (!empty($DepartmentCheck)) {
+	        try {
+	        	$employee = self::findOne($this->id);
+		        $employee->name = html::encode($this->name);
+		        $employee->deleted = false;
+		        $employee->save(false);
+	        	$departmentEmployee = new DepartmentEmployee();
+		        $departmentEmployee->establishLink($employee->id, $DepartmentCheck);
+		        $transaction->commit();
+	        } catch(\Exception $e) {
+			    $transaction->rollBack();
+			    throw $e;
+			} catch(\Throwable $e) {
+			    $transaction->rollBack();
+			    throw $e;
+			}
+        }
+        return $DepartmentCheck;
     }
 
-    public function deleteEmployee($info) {
-        $employee = self::findOne(HTML::encode($info['id']));
-        $employee->deleted = true;
-        $employee->save(false);
-        DepartmentEmployee::deleteLink(null,HTML::encode($info['id']));
+    public static function deleteEmployee($info) {
+        $transaction = self::getDb()->beginTransaction();
+        try {
+    		$employee = self::findOne(HTML::encode($info['id']));
+	        $employee->deleted = true;
+	        $employee->save(false);
+        	$departmentEmployee = new DepartmentEmployee();
+	        $departmentEmployee->deleteLink(null,HTML::encode($info['id']));
+	        $transaction->commit();
+        } catch(\Exception $e) {
+		    $transaction->rollBack();
+		    throw $e;
+		} catch(\Throwable $e) {
+		    $transaction->rollBack();
+		    throw $e;
+		}
     }
 
     /**

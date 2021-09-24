@@ -38,26 +38,48 @@
 	Pjax::begin(['id' => 'employee_grid_pjax', 'timeout' => false, 'options' => ['class' => 'pjax-loader']]);
 	echo GridView::widget([
 		'dataProvider' => $dataProvider,
+    	'formatter' => ['class' => 'yii\i18n\Formatter','nullDisplay' => 'Отсутствует'],
 	    'filterModel' => $searchModel,
 	    'layout' => '{items}{pager}',
 		'columns' => [
 			'id',
 			'name',
 			'department',
+			[
+				'attribute' => 'deleted',
+                'format' => 'raw',
+                'headerOptions' => ['style' => 'width:120px'],
+                'contentOptions' => [
+                    'class' => ['text-center','align-middle']
+                ],
+                'value' => function($data) {
+                	if ($data['deleted']==0) {
+		            	return 'Активен';
+                	} else {
+                		return 'Удален';
+                	}
+                }
+            ],
             [
                 'format' => 'raw',
                 'headerOptions' => ['style' => 'width:120px'],
                 'contentOptions' => [
                     'class' => ['text-center','align-middle']
                 ],
+                'filter'=>array("0"=>"Активен","1"=>"Удален"),
                 'value' => function($data) use ($id_modal_delete, $id_modal_update){
-                    $item='
-                    <div class="d-flex justify-content-center">
-                    	'.Html::button('Изменить',['class' => 'btn btn-outline-primary btn-sm', 'title'=>'Изменить', 
-							'data-placement' => 'top', 'data-toggle'=>"tooltip", 'onclick'=>"show_modal('".$id_modal_update."','POST','employee-update','id=".$data['id']."')"]).' 
-						'.Html::button('Удалить',['class' => 'btn btn-outline-danger btn-sm btn_delete_modal', 'title'=>'Удалить', 'data-pjax_container' => 'employee_grid_pjax',
-							'data-placement' => 'top', 'data-toggle'=>"tooltip", 'data-id_modal' => $id_modal_delete, 'data-path' => 'employee-deleting', 'data-id' => Html::encode($data['id'])])."
-					</div>";
+                	$item='
+	                    <div class="d-flex justify-content-center">';
+                	if ($data['deleted']==0) {
+	                    $item.=Html::button('Изменить',['class' => 'btn btn-outline-primary btn-sm', 'title'=>'Изменить', 
+								'data-placement' => 'top', 'data-toggle'=>"tooltip", 'onclick'=>"show_modal('".$id_modal_update."','POST','employee-update','id=".$data['id']."')"]).' 
+							'.Html::button('Удалить',['class' => 'btn btn-outline-danger btn-sm btn_delete_modal', 'title'=>'Удалить', 'data-pjax_container' => 'employee_grid_pjax',
+								'data-placement' => 'top', 'data-toggle'=>"tooltip", 'data-id_modal' => $id_modal_delete, 'data-path' => 'employee-deleting', 'data-id' => Html::encode($data['id'])]);
+                	} else {
+                		$item.=Html::button('Восстановить',['class' => 'btn btn-outline-primary btn-sm', 'title'=>'Восстановить', 
+								'data-placement' => 'top', 'data-toggle'=>"tooltip", 'onclick'=>"show_modal('".$id_modal_update."','POST','employee-update','id=".$data['id']."')"]);
+                	}
+                	$item.='</div>';
 					return $item;
                 }
             ],

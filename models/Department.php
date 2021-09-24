@@ -61,26 +61,63 @@ class Department extends \yii\db\ActiveRecord
     }
     
     public function createDepartment() {
-        $this->name = html::encode($this->name);
-        $this->save();
+    	$transaction = self::getDb()->beginTransaction();
+		try {
+	        $this->name = html::encode($this->name);
+	        $this->save();
+	        $transaction->commit();
+		} catch(\Exception $e) {
+		    $transaction->rollBack();
+		    throw $e;
+		} catch(\Throwable $e) {
+		    $transaction->rollBack();
+		    throw $e;
+		}
     }
     
     public function updateDepartment() {
-        $department = self::findOne($this->id);
-        $department->name = html::encode($this->name);
-        $department->save(false);
+        $transaction = self::getDb()->beginTransaction();
+		try {
+        	$department = self::findOne($this->id);
+	        $department->name = html::encode($this->name);
+		    $department->deleted = false;
+	        $department->save(false);
+	        $transaction->commit();
+		} catch(\Exception $e) {
+		    $transaction->rollBack();
+		    throw $e;
+		} catch(\Throwable $e) {
+		    $transaction->rollBack();
+		    throw $e;
+		}
     }
 
-    public function deleteDepartment($info) {
-        $department = self::findOne(HTML::encode($info['id']));
-        $department->deleted = true;
-        $department->save(false);
-        DepartmentEmployee::deleteLink(HTML::encode($info['id']));
+    public static function deleteDepartment($info) {
+    	$id = HTML::encode($info['id']);
+    	$departmentEmployee = new DepartmentEmployee();
+    	$toDelete = $departmentEmployee->toDelete();
+    	if (!in_array($id, $toDelete)) {
+	        $transaction = self::getDb()->beginTransaction();
+			try {
+	        	$department = self::findOne($id);
+		        $department->deleted = true;
+		        $department->save();
+		        
+		        $departmentEmployee->deleteLink(HTML::encode($info['id']));
+				$transaction->commit();
+			} catch(\Exception $e) {
+			    $transaction->rollBack();
+			    throw $e;
+			} catch(\Throwable $e) {
+			    $transaction->rollBack();
+			    throw $e;
+			}
+    	}
     }
     
-    public function toDelete() {
-    	$subQ = DepartmentEmployee::find()->select(['department_id'])->groupBy(['employee_id'])->having(['count(department_id)' => 1])->all();
-    	return ArrayHelper::map($subQ, 'department_id', 'department_id');
+    public static function activeDepartment () {
+    	$department = self::find()->where(['deleted'=>false])->all();
+    	return ArrayHelper::map($department, 'id', 'id');
     }
     
 }

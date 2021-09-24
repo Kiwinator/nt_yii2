@@ -3,7 +3,6 @@
 	use yii\widgets\Pjax;
 	use yii\widgets\ActiveForm;
 	
-	$this->title = 'Создание сотрудника';
 	$this->registerJsFile('/web/js/employee/form.js', ['depends' => [\yii\web\JqueryAsset::classname()]]);
 	$this->registerJsFile('/web/js/form.js', ['depends' => [\yii\web\JqueryAsset::classname()]]);
 ?>

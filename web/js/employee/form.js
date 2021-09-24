@@ -1,6 +1,6 @@
 $(document).on('beforeSubmit', '#form_create', function(){
     var formData = new FormData(this);
-
+	$(".fade.modal.show").modal("hide");
     $.ajax({
         url: 'employee-creating',
         type: "post",
@@ -10,7 +10,7 @@ $(document).on('beforeSubmit', '#form_create', function(){
         processData : false,
         success: function(response){
             $.pjax.defaults.timeout = false;
-            $.pjax.reload({container:"#employee_form_pjax"});
+            $.pjax.reload({container:"#employee_grid_pjax"});
         },
         error: function (response) {
         }
@@ -21,7 +21,7 @@ $(document).on('beforeSubmit', '#form_create', function(){
 
 $(document).on('beforeSubmit', '#form_update', function(){
     var formData = new FormData(this);
-
+	$(".fade.modal.show").modal("hide");
     $.ajax({
         url: 'employee-updating',
         type: "post",
@@ -31,7 +31,7 @@ $(document).on('beforeSubmit', '#form_update', function(){
         processData : false,
         success: function(response){
             $.pjax.defaults.timeout = false;
-            $.pjax.reload({container:"#employee_form_pjax"});
+            $.pjax.reload({container:"#employee_grid_pjax"});
         },
         error: function (response) {
         }

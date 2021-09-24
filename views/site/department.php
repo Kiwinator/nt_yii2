@@ -42,6 +42,22 @@
 		'columns' => [
 			'id',
 			'name',
+			[
+				'attribute' => 'deleted',
+                'format' => 'raw',
+                'headerOptions' => ['style' => 'width:120px'],
+                'contentOptions' => [
+                    'class' => ['text-center','align-middle']
+                ],
+                'filter'=>array("0"=>"Активен","1"=>"Удален"),
+                'value' => function($data) {
+                	if ($data['deleted']==0) {
+		            	return 'Активен';
+                	} else {
+                		return 'Удален';
+                	}
+                }
+            ],
             [
                 'format' => 'raw',
                 'headerOptions' => ['style' => 'width:120px'],
@@ -49,14 +65,19 @@
                     'class' => ['text-center','align-middle']
                 ],
                 'value' => function($data) use ($id_modal_delete, $id_modal_update, $notDelete){
-                    $item='
-                    <div class="d-flex justify-content-center">
-                    	'.Html::button('Изменить',['class' => 'btn btn-outline-primary btn-sm', 'title'=>'Изменить', 
-							'data-placement' => 'top', 'data-toggle'=>"tooltip", 'onclick'=>"show_modal('".$id_modal_update."','POST','department-update','id=".$data['id']."')"]);
-					if (!in_array($data['id'], $notDelete))
+					$item='
+	                    <div class="d-flex justify-content-center">';
+                	if ($data['deleted']==0) {
+	                    $item.=Html::button('Изменить',['class' => 'btn btn-outline-primary btn-sm', 'title'=>'Изменить', 
+								'data-placement' => 'top', 'data-toggle'=>"tooltip", 'onclick'=>"show_modal('".$id_modal_update."','POST','department-update','id=".$data['id']."')"]);
+						if (!in_array($data['id'], $notDelete))
 						$item.=Html::button('Удалить',['class' => 'btn btn-outline-danger btn-sm btn_delete_modal', 'title'=>'Удалить', 'data-pjax_container' => 'department_grid_pjax',
-							'data-placement' => 'top', 'data-toggle'=>"tooltip", 'data-id_modal' => $id_modal_delete, 'data-path' => 'department-deleting', 'data-id' => Html::encode($data['id'])]);
-					$item.="</div>";
+								'data-placement' => 'top', 'data-toggle'=>"tooltip", 'data-id_modal' => $id_modal_delete, 'data-path' => 'department-deleting', 'data-id' => Html::encode($data['id'])]);
+                	} else {
+                		$item.=Html::button('Восстановить',['class' => 'btn btn-outline-primary btn-sm', 'title'=>'Восстановить', 
+								'data-placement' => 'top', 'data-toggle'=>"tooltip", 'onclick'=>"show_modal('".$id_modal_update."','POST','department-update','id=".$data['id']."')"]);
+                	}
+                	$item.='</div>';
 					return $item;
                 }
             ],
