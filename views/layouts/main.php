@@ -23,37 +23,19 @@
 	<body class="d-flex flex-column h-100">
 		<?php $this->beginBody() ?>
 			<header>
-			    <? NavBar::begin([
-			        'brandLabel' => Yii::$app->name,
-			        'brandUrl' => Yii::$app->homeUrl,
-			        'options' => [
-			            'class' => 'navbar navbar-expand-md navbar-dark bg-dark fixed-top',
-			        ],
-			    ]);
-			    echo Nav::widget([
-			        'options' => ['class' => 'navbar-nav'],
-			        'items' => [
-			            ['label' => 'Отдел', 'url' => ['/site/department']],
-			            ['label' => 'Сотрудники', 'url' => ['/site/employee']],
-			            ['label' => 'Сотрудники в отделах', 'url' => ['/site/department-stuff']],
-			        ],
-			    ]);
-			    NavBar::end(); ?>
+				<div class="logo-container">
+					<div class="logo">
+						<a href="/">
+							<img src="/web/images/image.png" alt="">
+						</a>
+					</div>
+			    </div>
 			</header>
 			<main role="main" class="flex-shrink-0">
-			    <div class="container">
-			        <?= Breadcrumbs::widget([
-			            'links' => isset($this->params['breadcrumbs']) ? $this->params['breadcrumbs'] : [],
-			        ]) ?>
-			        <?= Alert::widget() ?>
+			    <div>
 			        <?= $content ?>
 			    </div>
 			</main>
-			<footer class="footer mt-auto py-3 text-muted">
-			    <div class="container">
-			        <p class="float-right"><?= Yii::powered() ?></p>
-			    </div>
-			</footer>
 		<? $this->endBody() ?>
 	</body>
 </html>
