@@ -35,7 +35,7 @@ class PartnerLocatorSearch extends PartnerLocator
             'query' => $query,
             'sort' => [
                 'defaultOrder'=>[
-                    'id' => SORT_DESC,
+                    'id' => SORT_ASC,
                 ],
                 'attributes'=>[
                     'id',

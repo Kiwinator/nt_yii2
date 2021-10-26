@@ -16,7 +16,7 @@
     <div class="filter-image-background">
     	<div class="filter-content">
     		<p class="filter-content-text filter-content-text-main">Netwrix Partner Locator</p>
-    		<p class="filter-content-text filter-content-text-sub">Hundreds of Netwrix partners around the world are standing by to help you.<br>With our Partner Locator you can easily find the list of authorized partners in your area.</p>
+    		<p class="filter-content-text filter-content-text-sub">Hundreds of Netwrix partners around the world are standing by to help you.<br>With our Partner Locator you can easily find the list of authorized partners <br class="br">in your area.</p>
     		<div class="filter-container-search">
     			<?=Html::textInput('search','',['id'=>'search-input','class'=>'search-trigger filter-container-search-input','placeholder'=>'Search by company name or adress...', 'autocomplete'=>false,])?>
     			<button class="filter-container-search-button"><i class="fas fa-search"></i></button>
@@ -77,18 +77,18 @@
 							$item='
 		                    <div class="result-container-main">
 		                    	<div class="result-container-sub">
-				                    <div id="logo" class="col-md-2 result-content-center">'.$logo.'</div>
-					                <div id="name_address" class="col-md-6">
+				                    <div id="logo" class="result-content-center">'.$logo.'</div>
+					                <div id="name_address" class="">
 										<p class="result-content result-content-top result-content-max">'.$data['company'].'</p>
 					              		<p class="result-content result-content-min result-content-middle">'.$data['address'].'</p>
 					               	</div>
-					                <div id="info" class="col-md-2">
+					                <div id="info" class="">
 					              		<p class="result-content result-content-top result-content-middle">
 					              			<a href="'.$data['website'].'" target="_blank">Website</a>
 					              		</p>
 					               		<p class="result-content">'.$data['phone'].'</p>
 					               	</div>
-			                    	<div id="status" class="col-md-2">
+			                    	<div id="status" class="">
 					                    <p class="result-content">'.$typeArr[$data['status']].'</p>
 					            	</div>
 				            	</div>
